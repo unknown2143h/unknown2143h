@@ -1,5 +1,8 @@
 while True:
-	x = float(input('Your Integer=> '))
+	x = float(input('Your Integer=> ')) 
+
+## I've used float as the type because the limit of the value of the integer type is too low. but you should put only integers.##
+
 	sc = 0
 	while x!=1:
 		if x%2 == 0:
