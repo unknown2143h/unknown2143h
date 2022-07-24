@@ -4,7 +4,7 @@ while True:
 ## I've used float as the type because the limit of the value of the integer type is too low. but you should put only integers.##
 
 	sc = 0
-	while x!=1:
+	while x!=1 and x!= -17 and x != -1 and x != -5:
 		if x%2 == 0:
 			sc += 1
 			x/=2
