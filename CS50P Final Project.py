@@ -8,12 +8,6 @@ x = sp.symbols("x")
 
 def main():
     global x
-    print("# The variable must be x")
-    print("Example input: f(x) = 2x^2 + x + 2")
-    print("The example above is equivalent to the written form: f(x) = 2x² + x + 2\n")
-    print("# Powers and coefficients must be rational")
-    print("Example: f(x) = x^2\n\t f(x) = x^0.5\n")
-
     y = input("f(x) = ").replace(" ", "")
     validate(y)
 
@@ -21,7 +15,7 @@ def main():
     print("1. Indefinite Integral                     (I)")
     print("2. Differentiate                           (D)")
     print("3. Expand/Simplify                         (E)")
-    print("4. Factorize                               (F)")
+    print("4. Factorise                               (F)")
     print("5. Area under the curve (Integration)      (A)")
     print("6. Minima and maxima (Critical Points)     (M)")
     print("7. Solve for x when f(x) = 0               (S)")
@@ -30,7 +24,7 @@ def main():
     id_set = ["I", "D", "E", "F", "A", "M", "S", "1", "2", "3", "4", "5", "6", "7"]
     if not id in id_set:
         exit("Error: Invalid command")
-    if id == "I" or id == "D":
+    if id == "I" or id == "1" or id == "D" or id == "2":
         try:
             t = int(
                 input(
@@ -55,16 +49,27 @@ def main():
     elif id == "A" or id == "5":
         y = Area(y)
     elif id == "M" or id == "6":
+        output = ""
         critical_points = minmaxima(y)
-        output = f"Critical Points: x = {set(critical_points)}"
+        results = (
+            super(critical_points)
+            .replace("I", "i")
+            .replace("]", "}")
+            .replace("[", "{")
+            .replace("*", "·")
+        )
+
+        print(f"Critical Points:{results}\n")
+
+
     elif id == "S" or id == "7":
         output = ""
         print(root(y))
         results = (
             super(str(root(y)))
             .replace("I", "i")
-            .replace("}", "")
-            .replace("{", "")
+            .replace("]", "")
+            .replace("[", "")
             .split(",")
         )
         for i in range(len(results)):
@@ -90,34 +95,33 @@ def dfrnt(y, t=1):
 
 
 def replacer(y):
-    g = re.findall(r"((?:\+|\-)?[0-9]+x)", y)
+    g = re.findall(r"([+-]?\d+x)", y)
     f = re.findall(
-        r"\((?:[0-9]*(?:x\^[0-9]*)?)(?:\+|-)?(?:[0-9]*(?:x\^[0-9]*)?)x?(?:\+|-)?(?:[0-9]*(?:x\^[0-9]*)?)\)",
+        r"\((?:\d*(?:x\^\d*)?)(?:[+-]?\d*(?:x\^\d*)?)*x?(?:[+-]?\d*(?:x\^\d*)?)?\)",
         y,
     )
     if f != []:
         if y.startswith(f[0]):
             f.remove(f[0])
         k = str(f)
-    for j in range(len(f)):
-        y = y.replace(f[j], f[j].replace("(", "*("))
-    for i in range(len(g)):
-        y = y.replace(g[i], g[i].replace("x", "*x"))
+    for _ in range(len(f)):
+        y = y.replace(f[_], f[_].replace("(", "*("))
+    for _ in range(len(g)):
+        y = y.replace(g[_], g[_].replace("x", "*x"))
     t = y.replace("^", "**").replace("***", "**")
 
     return t
 
 
-def symper(y):
+def symper(y: str):
     t = replacer(y)
     return pe(t)
 
 
-def super(y):
+def super(y: str):
     y = y.replace("**", "^")
     y = re.sub(r"\^x", "^(x)", y)
-    #out = re.sub(r"(\^\(\(?[0-9x]*(?:\.+|\/)?[0-9x]+\)?)", lambda m: to_super(m[1]), y)
-    out = re.sub(r"(?:\^\()([0-9x]*(?:\.|\/)?[0-9x]+)(?:\))", lambda m: to_super(m[1]), y)
+    out = re.sub(r"^\(?([0-9x]+(?:[./][0-9x]+)?)\)?", lambda m: to_super(m[1]), y)
     return out
 
 
@@ -159,13 +163,6 @@ def Area(y):
     yul = y.subs({x: ul})
     yll = y.subs({x: ll})
     result = positive(yul - yll)
-    if result == 0:
-        yll1 = y.subs({x: 0})
-        result1 = positive(yul - yll1)
-        yul1 = y.subs({x: 0})
-        result2 = positive(yul1 - yll)
-        result = result1 + result2
-        return f"Area: {result}"
     return f"Area: {result}"
 
 
@@ -173,22 +170,27 @@ def minmaxima(y):
     global x
     y = symper(y)
     df = sp.diff(y, x)
-    critical_points = sp.solve(df, x)
+    critical_points = str(sp.solve(df, x))
     return critical_points
 
 
 def positive(num):
-    return num if num > 0 else (num * (-1))
+    return num if num > 0 else -num
 
 
 def validate(y):
     if "x" not in y:
-        exit("Error: Variable 'x' not found. (You can not input only numbers.))")
+        try:
+            float(y)
+        except ValueError:
+            exit("Error: Variable 'x' not found.")
 
     t = re.findall(r"[^x0-9\/\.\+\*\^\(\)\s\-]", y)
-    if t != [] and (("l" not in str(t) and "o" not in str(t) and "g" not in str(t)) and ("l" not in str(t) and "n" not in str(t))):
+    if t != [] and (
+        ("l" not in str(t) and "o" not in str(t) and "g" not in str(t))
+        and ("l" not in str(t) and "n" not in str(t))
+    ):
         print(t)
-        print("log(" not in t)
         exit("Error: You didn't follow the rules for input")
     symper(y)
 
@@ -200,7 +202,7 @@ def smplfy(y):
 def root(y):
     global x
     y = symper(y)
-    y = sp.solveset(y, x)
+    y = sp.solve(y, x)
     return y
 
 
